@@ -1,0 +1,41 @@
+[package]
+name = "carpark"
+version = "0.1.0"
+authors = ["WangHailin <whlsoulmate@gmail.com>"]
+edition = "2021"
+
+[workspace]
+members = []
+
+[profile.release]
+# optimize for size ('z' would optimize even more)
+opt-level = 's'
+# link with link time optimization (lto).
+lto = true
+# enable debugging in release mode.
+debug = true
+
+[dependencies]
+cortex-m = "0.7.7"
+cortex-m-rt = "0.7.3"
+ssd1306 = "0.8.4"
+stm32f1 = { version = "0.15.1", features = ["stm32f103", "rt"] }
+stm32f1xx-hal = { version = "0.10.0", features = ["rt", "stm32f103", "medium"] }
+embedded-graphics = "0.8.1"
+no_std_strings = "0.1.3"
+time = { version = "0.3.36", default-features = false, features = [
+    "parsing",
+    "macros",
+] }
+mfrc522 = "0.3.1"
+panic-halt = "0.2.0"
+cortex-m-semihosting = "0.5.0"
+heapless = "0.8.0"
+hash32 = "0.3.1"
+fugit = "0.3.7"
+nb = "1.1.0"
+dht11 = "0.3.1"
+
+[dependencies.async-embedded]
+git = "https://github.com/rust-embedded-community/async-on-embedded"
+rev = "aa43ccddffb8ba0460c49bcfe61cba24d966db6c"
