@@ -11,8 +11,7 @@
 
 ### Debuger:
 
-ST-LINK V2
-protocol: SWD
+ST-LINK V2 protocol SWD
 
 #### dev command
 
@@ -24,13 +23,13 @@ protocol: SWD
 
 2. debug
 
-  config: `.gdbinit`
-  ```shell
-  arm-none-eabi-gdb -se /Users/wanghailin/Works/stm32/carpark/target/thumbv7m-none-eabi/release/carpark
-  ```
+    config: `.gdbinit`
+    ```shell
+    arm-none-eabi-gdb -se /Users/wanghailin/Works/stm32/carpark/target/thumbv7m-none-eabi/release/carpark
+    ```
 
 3. flash
 
-  ```shell
-  cargo flash --chip STM32F103C8 --protocol swd --reset-halt --release
-  ```
+    ```shell
+    cargo flash --chip STM32F103C8 --protocol swd --reset-halt --release
+    ```
