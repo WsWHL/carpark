@@ -74,7 +74,15 @@ fn main() -> ! {
             oled.text(t.as_str(), Point::zero());
 
             // 显示卡号
-            if !uid.is_empty() {
+            if uid.is_empty() {
+                let n = park.get_idle();
+                if n > 0 {
+                    let idle = no_std_strings::str_format!(str64, "剩余{}个车位", n);
+                    oled.text_pixel(idle.as_str(), 3, 1);
+                } else {
+                    oled.text_pixel("车位已满", 3, 1);
+                }
+            } else {
                 let id = utils::parse_int::<i64>(uid.as_str()).unwrap();
                 // 扫描卡片
                 let mut card = no_std_strings::str_format!(str64, "{}", uid);
@@ -101,12 +109,6 @@ fn main() -> ! {
 
                 oled.text(card.as_str(), Point::new(0, 15));
                 oled.text_pixel(tips, 3, 1);
-            } else {
-                let n = park.get_idle();
-                oled.text(
-                    no_std_strings::str_format!(str64, "idle: {}", n).as_str(),
-                    Point::new(0, 32),
-                )
             }
 
             // 读取温湿度
