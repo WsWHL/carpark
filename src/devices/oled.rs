@@ -80,28 +80,20 @@ impl OLEDDevice {
             let (x_offset, y_offset) = ((column - 1 + i as u32) * 16, (line - 1) * 16);
 
             if let Ok(bytes) = fonts::get_zh_font(c) {
-                for x in 0..16u32 {
-                    let b = bytes[x as usize];
-                    for y in 0..8u32 {
-                        if b & (0x01 << y) == 0 {
-                            self.display.set_pixel(x + x_offset, y + y_offset, false);
-                        } else {
-                            self.display.set_pixel(x + x_offset, y + y_offset, true);
-                        }
-                    }
-                }
+                _ = self.draw_zh(bytes, x_offset, y_offset);
+            }
+        }
+    }
 
-                for x in 0..16u32 {
-                    let b = bytes[(x + 16) as usize];
-                    for y in 0..8u32 {
-                        if b & (0x01 << y) == 0 {
-                            self.display
-                                .set_pixel(x + x_offset, y + y_offset + 8, false);
-                        } else {
-                            self.display.set_pixel(x + x_offset, y + y_offset + 8, true);
-                        }
-                    }
-                }
+    pub fn text_small_pixel(&mut self, string: &str, line: u32, column: u32) {
+        let (mut x_offset, y_offset) = (((column - 1) as u32) * 12, (line - 1) * 16 + 3);
+        for c in string.chars() {
+            if let Ok(bytes) = fonts::get_zh_font_13x13(c) {
+                x_offset += self.draw_zh(bytes, x_offset, y_offset);
+            } else if let Ok(bytes) = fonts::get_zh_font_6x13(c) {
+                x_offset += self.draw_zh(bytes, x_offset, y_offset);
+            } else {
+                x_offset += 6; // 找不到的位置空6像素宽度
             }
         }
     }
@@ -112,5 +104,36 @@ impl OLEDDevice {
 
     pub fn clear(&mut self) {
         self.display.clear(BinaryColor::Off).unwrap();
+    }
+
+    fn draw_zh<const N: usize>(&mut self, bytes: [u8; N], x_offset: u32, y_offset: u32) -> u32 {
+        // 字体上半部分
+        for i in 0..(N / 2) {
+            let b = bytes[i];
+            let x = i as u32;
+            for y in 0..8u32 {
+                if b & (0x01 << y) == 0 {
+                    self.display.set_pixel(x + x_offset, y + y_offset, false);
+                } else {
+                    self.display.set_pixel(x + x_offset, y + y_offset, true);
+                }
+            }
+        }
+
+        // 字体下半部分
+        for i in 0..(N / 2) {
+            let b = bytes[(i + (N / 2)) as usize];
+            let x = i as u32;
+            for y in 0..8u32 {
+                if b & (0x01 << y) == 0 {
+                    self.display
+                        .set_pixel(x + x_offset, y + y_offset + 8, false);
+                } else {
+                    self.display.set_pixel(x + x_offset, y + y_offset + 8, true);
+                }
+            }
+        }
+
+        (N / 2) as u32
     }
 }

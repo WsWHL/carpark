@@ -116,12 +116,12 @@ fn main() -> ! {
             if temp > 0 || humi > 0 {
                 let th = no_std_strings::str_format!(
                     str64,
-                    "temp:{}.{}C  humi:{}%",
+                    "温度:{}.{}℃ 湿度:{}%",
                     temp / 10,
                     temp % 10,
                     humi / 10
                 );
-                oled.text(th.as_str(), Point::new(0, 50));
+                oled.text_small_pixel(th.as_str(), 4, 1);
             }
 
             oled.flash();
