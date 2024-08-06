@@ -8,8 +8,7 @@ use crate::format;
 use super::strings::Strfmt;
 
 // 格式化unix时间戳: 2024-07-14 23:51:13
-pub fn format_unix_time(ts: i64) -> Strfmt {
-    let t = OffsetDateTime::from_unix_timestamp(ts).unwrap();
+pub fn format_time(t: OffsetDateTime) -> Strfmt {
     if t.second() % 2 == 0 {
         return format!(
             "{}-{}-{} {} {} {}",

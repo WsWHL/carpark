@@ -21,16 +21,18 @@ use time::Duration;
 #[entry]
 fn main() -> ! {
     let s = sys::Sys::new();
-    let time = s.time_rtc();
     let mut delay = s.get_delay();
 
     // 初始化系统
-    let (mut oled, mut rf, mut sg, led, mut buz, mut dht, mut voice) = park::init_devices();
+    let (mut oled, mut rf, mut sg, led, mut buz, mut dht, mut voice, mut ds) = park::init_devices();
     let mut park = park::Parking::<2>::new(led);
 
     // 多任务通信Channel
     static mut C: Channel<i64> = Channel::new();
     static mut V: Channel<&str> = Channel::new();
+
+    // 初始化时间
+    ds.init();
 
     task::spawn(async move {
         loop {
@@ -63,14 +65,15 @@ fn main() -> ! {
 
     task::block_on(async {
         loop {
-            let ts = time.current_time() as i64;
-            let t = utils::format_unix_time(ts);
+            let now = ds.get_time();
+            let ts = now.unix_timestamp();
             let uid = rf.read(&mut buz);
 
             // 清除屏幕显示内容
             oled.clear();
 
             // 显示时间
+            let t = utils::format_time(now);
             oled.text(t.as_str(), Point::zero());
 
             // 显示卡号

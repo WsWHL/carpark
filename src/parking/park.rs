@@ -13,6 +13,7 @@ pub fn init_devices() -> (
     buzzer::BuzzerDevice,
     dht::DHTDevice,
     voice::VoiceDevice,
+    ds::DSDevice,
 ) {
     // init devices
     let p = pac::Peripherals::take().unwrap();
@@ -69,7 +70,10 @@ pub fn init_devices() -> (
         &mut afio.mapr,
     );
 
-    (oled, rfid, sg, led, buzzer, dht, voice)
+    // Clock configuration
+    let ds = ds::DSDevice::new(p.I2C2, gpiob.pb10, gpiob.pb11, clocks, &mut gpiob.crh);
+
+    (oled, rfid, sg, led, buzzer, dht, voice, ds)
 }
 
 // 刷卡错误

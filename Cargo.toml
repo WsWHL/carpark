@@ -9,11 +9,15 @@ members = []
 
 [profile.release]
 # optimize for size ('z' would optimize even more)
-opt-level = 's'
+opt-level = 'z'
 # link with link time optimization (lto).
 lto = true
 # enable debugging in release mode.
-debug = true
+debug = false
+codegen-units = 1
+
+[dev-dependencies]
+cortex-m-semihosting = "0.5.0"
 
 [dependencies]
 cortex-m = "0.7.7"
@@ -28,12 +32,12 @@ time = { version = "0.3.36", default-features = false, features = [
 ] }
 mfrc522 = "0.3.1"
 panic-halt = "0.2.0"
-cortex-m-semihosting = "0.5.0"
 heapless = "0.8.0"
 hash32 = "0.3.1"
 fugit = "0.3.7"
 nb = "1.1.0"
 dht11 = "0.3.1"
+ds323x = "0.5.1"
 
 [dependencies.async-embedded]
 git = "https://github.com/rust-embedded-community/async-on-embedded"
