@@ -67,7 +67,6 @@ fn main() -> ! {
         loop {
             let now = ds.get_time();
             let ts = now.unix_timestamp();
-            let uid = rf.read(&mut buz);
 
             // 清除屏幕显示内容
             oled.clear();
@@ -77,15 +76,7 @@ fn main() -> ! {
             oled.text(t.as_str(), Point::zero());
 
             // 显示卡号
-            if uid.is_empty() {
-                let n = park.get_idle();
-                if n > 0 {
-                    let idle = format!("剩余{}个车位", n);
-                    oled.text_pixel(idle.as_str(), 3, 1);
-                } else {
-                    oled.text_pixel("车位已满", 3, 1);
-                }
-            } else {
+            if let Ok(uid) = rf.read(&mut buz) {
                 let id = utils::parse_int::<i64>(uid.as_str()).unwrap();
                 // 扫描卡片
                 let mut card = format!("{}", uid);
@@ -112,6 +103,14 @@ fn main() -> ! {
 
                 oled.text(card.as_str(), Point::new(0, 15));
                 oled.text_pixel(tips, 3, 1);
+            } else {
+                let n = park.get_idle();
+                if n > 0 {
+                    let idle = format!("剩余{}个车位", n);
+                    oled.text_pixel(idle.as_str(), 3, 1);
+                } else {
+                    oled.text_pixel("车位已满", 3, 1);
+                }
             }
 
             // 读取温湿度

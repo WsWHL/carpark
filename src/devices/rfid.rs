@@ -62,18 +62,17 @@ impl RFIDDevice {
         Self { mfrc522, delay }
     }
 
-    pub fn read(&mut self, buz: &mut buzzer::BuzzerDevice) -> Strfmt {
-        let mut s = Strfmt::new();
+    pub fn read(&mut self, buz: &mut buzzer::BuzzerDevice) -> Result<Strfmt, &str> {
         if let Ok(atqa) = self.mfrc522.reqa() {
             if let Ok(uid) = self.mfrc522.select(&atqa) {
                 buz.on();
-
-                s.add_slice(uid.as_bytes());
                 self.delay.delay_ms(500_u16);
-
                 buz.off();
+
+                return Ok(Strfmt::from_bytes(uid.as_bytes()));
             }
         }
-        s
+
+        Err("Read fail")
     }
 }

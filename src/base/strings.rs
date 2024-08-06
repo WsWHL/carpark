@@ -14,14 +14,17 @@ impl<const N: usize> Strfmt<N> {
         }
     }
 
-    pub fn as_str(&self) -> &str {
-        self.buf.as_str()
+    pub fn from_bytes(bytes: &[u8]) -> Self {
+        let mut buf = String::<N>::new();
+        for i in bytes {
+            write!(&mut buf, "{}", i).unwrap();
+        }
+
+        Self { buf }
     }
 
-    pub fn add_slice(&mut self, bytes: &[u8]) {
-        for i in bytes {
-            write!(self, "{}", i).unwrap();
-        }
+    pub fn as_str(&self) -> &str {
+        self.buf.as_str()
     }
 
     pub fn is_empty(&self) -> bool {
