@@ -14,8 +14,8 @@ pub struct DHTDevice {
 }
 
 impl DHTDevice {
-    pub fn new(pa7: gpio::PB1, clocks: rcc::Clocks, crl: &mut gpio::Cr<'B', false>) -> Self {
-        let pin = pa7.into_open_drain_output(crl);
+    pub fn new(pb1: gpio::PB1, clocks: rcc::Clocks, crl: &mut gpio::Cr<'B', false>) -> Self {
+        let pin = pb1.into_open_drain_output(crl);
 
         let dht = Dht11::new(pin);
 

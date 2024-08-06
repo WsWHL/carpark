@@ -1,8 +1,7 @@
 #![allow(dead_code)]
 
-use crate::base::{pac, utils};
+use crate::base::{pac, strings::Strfmt};
 use mfrc522::Mfrc522;
-use no_std_strings::str64;
 use stm32f1xx_hal::{
     gpio::{self, gpiob, Alternate, Floating, Input, Output, PushPull},
     pac::SPI2,
@@ -63,13 +62,13 @@ impl RFIDDevice {
         Self { mfrc522, delay }
     }
 
-    pub fn read(&mut self, buz: &mut buzzer::BuzzerDevice) -> str64 {
-        let mut s = str64::new();
+    pub fn read(&mut self, buz: &mut buzzer::BuzzerDevice) -> Strfmt {
+        let mut s = Strfmt::new();
         if let Ok(atqa) = self.mfrc522.reqa() {
             if let Ok(uid) = self.mfrc522.select(&atqa) {
                 buz.on();
 
-                s = utils::concat(uid.as_bytes());
+                s.add_slice(uid.as_bytes());
                 self.delay.delay_ms(500_u16);
 
                 buz.off();

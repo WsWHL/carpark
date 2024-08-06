@@ -6,12 +6,12 @@ mod devices;
 mod parking;
 
 use async_embedded::{task, unsync::Channel};
+use base::strings;
 use base::sys;
 use base::utils;
 use cortex_m::asm;
 use cortex_m_rt::entry;
 use embedded_graphics::prelude::Point;
-use no_std_strings::str64;
 use panic_halt as _;
 use parking::park;
 use stm32f1xx_hal::prelude::*;
@@ -77,7 +77,7 @@ fn main() -> ! {
             if uid.is_empty() {
                 let n = park.get_idle();
                 if n > 0 {
-                    let idle = no_std_strings::str_format!(str64, "剩余{}个车位", n);
+                    let idle = format!("剩余{}个车位", n);
                     oled.text_pixel(idle.as_str(), 3, 1);
                 } else {
                     oled.text_pixel("车位已满", 3, 1);
@@ -85,7 +85,7 @@ fn main() -> ! {
             } else {
                 let id = utils::parse_int::<i64>(uid.as_str()).unwrap();
                 // 扫描卡片
-                let mut card = no_std_strings::str_format!(str64, "{}", uid);
+                let mut card = format!("{}", uid);
                 let mut tips = "欢迎光临！";
 
                 match park.scanning(id, ts) {
@@ -94,7 +94,7 @@ fn main() -> ! {
 
                         if ts > in_ts {
                             let d = Duration::new(ts - in_ts, 0);
-                            card = no_std_strings::str_format!(str64, "{} {}", uid, d);
+                            card = format!("{} {}", uid, d);
                             tips = "祝你一路顺风！";
                         }
                     }
@@ -114,13 +114,7 @@ fn main() -> ! {
             // 读取温湿度
             let (temp, humi) = dht.read();
             if temp > 0 || humi > 0 {
-                let th = no_std_strings::str_format!(
-                    str64,
-                    "温度:{}.{}℃ 湿度:{}%",
-                    temp / 10,
-                    temp % 10,
-                    humi / 10
-                );
+                let th = format!("温度:{}.{}℃ 湿度:{}%", temp / 10, temp % 10, humi / 10);
                 oled.text_small_pixel(th.as_str(), 4, 1);
             }
 
