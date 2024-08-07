@@ -1,4 +1,7 @@
-use core::fmt::{self, Display, Write};
+use core::{
+    fmt::{self, Display, Write},
+    str::FromStr,
+};
 
 use heapless::String;
 
@@ -14,6 +17,12 @@ impl<const N: usize> Strfmt<N> {
         }
     }
 
+    pub fn from_str(s: &str) -> Self {
+        Self {
+            buf: String::<N>::from_str(s).unwrap(),
+        }
+    }
+
     pub fn from_bytes(bytes: &[u8]) -> Self {
         let mut buf = String::<N>::new();
         for i in bytes {
@@ -21,6 +30,20 @@ impl<const N: usize> Strfmt<N> {
         }
 
         Self { buf }
+    }
+
+    pub fn replace_all(&mut self, from: &str, to: &str) {
+        let mut result = String::<N>::new();
+        let mut last_index = 0;
+
+        for (index, _) in self.buf.match_indices(from) {
+            result.push_str(&self.buf[last_index..index]).unwrap();
+            result.push_str(to).unwrap();
+            last_index = index + from.len();
+        }
+
+        result.push_str(&self.buf[last_index..]).unwrap();
+        self.buf = result;
     }
 
     pub fn as_str(&self) -> &str {

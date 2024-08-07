@@ -7,16 +7,21 @@ mod parking;
 
 use async_embedded::{task, unsync::Channel};
 use base::strings;
+use base::strings::Strfmt;
 use base::sys;
 use base::utils;
+use core::fmt::Write;
 use cortex_m::asm;
 use cortex_m_rt::entry;
 use embedded_graphics::prelude::Point;
+use heapless::String;
 use panic_halt as _;
 use parking::park;
 use stm32f1xx_hal::prelude::*;
 use stm32f1xx_hal::time::ms;
 use time::Duration;
+
+static mut BUF: String<64> = String::<64>::new();
 
 #[entry]
 fn main() -> ! {
@@ -56,6 +61,13 @@ fn main() -> ! {
             let msg = unsafe { V.recv().await };
             if msg != "" {
                 // 语音播报
+                unsafe {
+                    let mut card = Strfmt::<64>::from_str(BUF.as_str());
+                    card.replace_all("s", "秒");
+                    card.replace_all("m", "分");
+                    voice.broadcast(card.as_str());
+                    BUF.clear();
+                };
                 voice.broadcast(msg);
             }
 
@@ -99,7 +111,10 @@ fn main() -> ! {
                     }
                 }
 
-                unsafe { V.send(tips).await }
+                unsafe {
+                    write!(BUF, "{}", card.as_str()).unwrap();
+                    V.send(tips).await;
+                }
 
                 oled.text(card.as_str(), Point::new(0, 15));
                 oled.text_pixel(tips, 3, 1);
