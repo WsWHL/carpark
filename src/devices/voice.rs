@@ -66,7 +66,7 @@ impl VoiceDevice {
                 nb::block!(self.tx.write(b)).ok();
             }
         }
-        self.delay.delay_ms(1000_u32);
+        self.delay.delay_ms(10_u32);
         self.busy.set_low();
     }
 }

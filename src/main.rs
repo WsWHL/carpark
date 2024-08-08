@@ -7,13 +7,11 @@ mod parking;
 
 use async_embedded::{task, unsync::Channel};
 use base::strings;
-use base::strings::Strfmt;
 use base::sys;
 use base::utils;
 use core::fmt::Write;
 use cortex_m::asm;
 use cortex_m_rt::entry;
-use embedded_graphics::prelude::Point;
 use heapless::String;
 use panic_halt as _;
 use parking::park;
@@ -62,10 +60,7 @@ fn main() -> ! {
             if msg != "" {
                 // 语音播报
                 unsafe {
-                    let mut card = Strfmt::<64>::from_str(BUF.as_str());
-                    card.replace_all("s", "秒");
-                    card.replace_all("m", "分");
-                    voice.broadcast(card.as_str());
+                    voice.broadcast(BUF.as_str());
                     BUF.clear();
                 };
                 voice.broadcast(msg);
@@ -85,7 +80,7 @@ fn main() -> ! {
 
             // 显示时间
             let t = utils::format_time(now);
-            oled.text(t.as_str(), Point::zero());
+            oled.text_small_pixel(t.as_str(), 1, 1);
 
             // 显示卡号
             if let Ok(uid) = rf.read(&mut buz) {
@@ -100,7 +95,16 @@ fn main() -> ! {
 
                         if ts > in_ts {
                             let d = Duration::new(ts - in_ts, 0);
-                            card = format!("{} {}", uid, d);
+                            if d.whole_minutes() > 0 {
+                                card = format!(
+                                    "{} 停车{}分{}秒",
+                                    uid,
+                                    d.whole_minutes(),
+                                    d.whole_seconds() % 60
+                                )
+                            } else {
+                                card = format!("{} 停车{}秒", uid, d.whole_seconds());
+                            }
                             tips = "祝你一路顺风！";
                         }
                     }
@@ -116,7 +120,7 @@ fn main() -> ! {
                     V.send(tips).await;
                 }
 
-                oled.text(card.as_str(), Point::new(0, 15));
+                oled.text_small_pixel(card.as_str(), 2, 1);
                 oled.text_pixel(tips, 3, 1);
             } else {
                 let n = park.get_idle();

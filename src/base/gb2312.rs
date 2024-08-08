@@ -1,7 +1,7 @@
 use heapless::Vec;
 
-static _ZH_CHARS: &str = "欢迎光临祝你一路顺风车位已满年月日时分秒今日温湿度剩余个";
-static _ZH_GB2312_BYTES: [[u8; 2]; 28] = [
+static _ZH_CHARS: &str = "欢迎光临祝你一路顺风停车位已满年月日时分秒今日温湿度剩余个";
+static _ZH_GB2312_BYTES: [[u8; 2]; 29] = [
     [0xBB, 0xB6],
     [0xD3, 0xAD],
     [0xB9, 0xE2],
@@ -12,6 +12,7 @@ static _ZH_GB2312_BYTES: [[u8; 2]; 28] = [
     [0xC2, 0xB7],
     [0xCB, 0xB3],
     [0xB7, 0xE7],
+    [0xCD, 0xA3],
     [0xB3, 0xB5],
     [0xCE, 0xBB],
     [0xD2, 0xD1],
@@ -33,8 +34,8 @@ static _ZH_GB2312_BYTES: [[u8; 2]; 28] = [
 ];
 
 // 字符串转gb2312字符
-pub fn str_to_gb2312(s: &str) -> Vec<u8, 16> {
-    let mut buffer = Vec::<u8, 16>::new();
+pub fn str_to_gb2312(s: &str) -> Vec<u8, 64> {
+    let mut buffer = Vec::<u8, 64>::new();
 
     for c in s.chars() {
         let mut exists = false;
