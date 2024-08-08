@@ -5,75 +5,88 @@ use hash32::{BuildHasherDefault, FnvHasher};
 use heapless::{FnvIndexMap, IndexMap};
 use stm32f1xx_hal::{afio::AfioExt, flash::FlashExt, gpio::GpioExt, rcc::RccExt};
 
-pub fn init_devices() -> (
-    oled::OLEDDevice,
-    rfid::RFIDDevice,
-    sg::SGPwmDevice,
-    led::LEDDevice,
-    buzzer::BuzzerDevice,
-    dht::DHTDevice,
-    voice::VoiceDevice,
-    ds::DSDevice,
-) {
-    // init devices
-    let p = pac::Peripherals::take().unwrap();
+pub struct Modules {
+    pub oled: oled::OLEDDevice,
+    pub rfid: rfid::RFIDDevice,
+    pub sg: sg::SGPwmDevice,
+    pub led: led::LEDDevice,
+    pub buzzer: buzzer::BuzzerDevice,
+    pub dht: dht::DHTDevice,
+    pub voice: voice::VoiceDevice,
+    pub ds: ds::DSDevice,
+}
 
-    let rcc = p.RCC.constrain();
-    let mut flash = p.FLASH.constrain();
-    let mut afio = p.AFIO.constrain();
-    let clocks = rcc.cfgr.freeze(&mut flash.acr);
+impl Modules {
+    pub fn new() -> Self {
+        // init devices
+        let p = pac::Peripherals::take().unwrap();
 
-    let mut gpioa = p.GPIOA.split();
-    let mut gpiob = p.GPIOB.split();
+        let rcc = p.RCC.constrain();
+        let mut flash = p.FLASH.constrain();
+        let mut afio = p.AFIO.constrain();
+        let clocks = rcc.cfgr.freeze(&mut flash.acr);
 
-    // I2c configuration
-    let oled = oled::OLEDDevice::new(
-        p.I2C1,
-        gpiob.pb8,
-        gpiob.pb9,
-        clocks,
-        &mut gpiob.crh,
-        &mut afio.mapr,
-    );
+        let mut gpioa = p.GPIOA.split();
+        let mut gpiob = p.GPIOB.split();
 
-    // SPI configuration
-    let rfid = rfid::RFIDDevice::new(
-        p.SPI2,
-        gpiob.pb12,
-        gpiob.pb13,
-        gpiob.pb14,
-        gpiob.pb15,
-        clocks,
-        &mut gpiob.crh,
-    );
+        // I2c configuration
+        let oled = oled::OLEDDevice::new(
+            p.I2C1,
+            gpiob.pb8,
+            gpiob.pb9,
+            clocks,
+            &mut gpiob.crh,
+            &mut afio.mapr,
+        );
 
-    // Pwm configuration
-    let sg = sg::SGPwmDevice::new(p.TIM2, gpioa.pa1, clocks, &mut gpioa.crl, &mut afio.mapr);
+        // SPI configuration
+        let rfid = rfid::RFIDDevice::new(
+            p.SPI2,
+            gpiob.pb12,
+            gpiob.pb13,
+            gpiob.pb14,
+            gpiob.pb15,
+            clocks,
+            &mut gpiob.crh,
+        );
 
-    // Led configuration
-    let led = led::LEDDevice::new(gpioa.pa2, gpioa.pa3, &mut gpioa.crl);
+        // Pwm configuration
+        let sg = sg::SGPwmDevice::new(p.TIM2, gpioa.pa1, clocks, &mut gpioa.crl, &mut afio.mapr);
 
-    // Buzzer configuration
-    let buzzer = buzzer::BuzzerDevice::new(gpiob.pb0, &mut gpiob.crl);
+        // Led configuration
+        let led = led::LEDDevice::new(gpioa.pa2, gpioa.pa3, &mut gpioa.crl);
 
-    // DHT11 configuration
-    let dht = dht::DHTDevice::new(gpiob.pb1, clocks, &mut gpiob.crl);
+        // Buzzer configuration
+        let buzzer = buzzer::BuzzerDevice::new(gpiob.pb0, &mut gpiob.crl);
 
-    // Voice configuration
-    let voice = voice::VoiceDevice::new(
-        p.USART1,
-        gpioa.pa8,
-        gpioa.pa9,
-        gpioa.pa10,
-        clocks,
-        &mut gpioa.crh,
-        &mut afio.mapr,
-    );
+        // DHT11 configuration
+        let dht = dht::DHTDevice::new(gpiob.pb1, clocks, &mut gpiob.crl);
 
-    // Clock configuration
-    let ds = ds::DSDevice::new(p.I2C2, gpiob.pb10, gpiob.pb11, clocks, &mut gpiob.crh);
+        // Voice configuration
+        let voice = voice::VoiceDevice::new(
+            p.USART1,
+            gpioa.pa8,
+            gpioa.pa9,
+            gpioa.pa10,
+            clocks,
+            &mut gpioa.crh,
+            &mut afio.mapr,
+        );
 
-    (oled, rfid, sg, led, buzzer, dht, voice, ds)
+        // Clock configuration
+        let ds = ds::DSDevice::new(p.I2C2, gpiob.pb10, gpiob.pb11, clocks, &mut gpiob.crh);
+
+        Self {
+            oled,
+            rfid,
+            sg,
+            led,
+            buzzer,
+            dht,
+            voice,
+            ds,
+        }
+    }
 }
 
 // 刷卡错误

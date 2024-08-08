@@ -27,17 +27,19 @@ fn main() -> ! {
     let mut delay = s.get_delay();
 
     // 初始化系统
-    let (mut oled, mut rf, mut sg, led, mut buz, mut dht, mut voice, mut ds) = park::init_devices();
-    let mut park = park::Parking::<2>::new(led);
+    let m = park::Modules::new();
+    let mut park = park::Parking::<2>::new(m.led);
 
     // 多任务通信Channel
     static mut C: Channel<i64> = Channel::new();
     static mut V: Channel<&str> = Channel::new();
 
     // 初始化时间
+    let mut ds = m.ds;
     ds.init();
 
     task::spawn(async move {
+        let mut sg = m.sg;
         loop {
             let uid = unsafe { C.recv().await };
             if uid > 0 {
@@ -55,6 +57,7 @@ fn main() -> ! {
     });
 
     task::spawn(async move {
+        let mut voice = m.voice;
         loop {
             let msg = unsafe { V.recv().await };
             if msg != "" {
@@ -71,6 +74,10 @@ fn main() -> ! {
     });
 
     task::block_on(async {
+        let mut oled = m.oled;
+        let mut rf = m.rfid;
+        let mut buz = m.buzzer;
+        let mut dht = m.dht;
         loop {
             let now = ds.get_time();
             let ts = now.unix_timestamp();
