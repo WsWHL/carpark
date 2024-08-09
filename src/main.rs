@@ -102,15 +102,21 @@ fn main() -> ! {
 
                         if ts > in_ts {
                             let d = Duration::new(ts - in_ts, 0);
+                            let amount = if d.whole_seconds() % 10 == 0 {
+                                d.whole_seconds() / 10
+                            } else {
+                                d.whole_seconds() / 10 + 1
+                            };
                             if d.whole_minutes() > 0 {
                                 card = format!(
-                                    "{} 停车{}分{}秒",
+                                    "{} {}分{}秒 {}元",
                                     uid,
                                     d.whole_minutes(),
-                                    d.whole_seconds() % 60
+                                    d.whole_seconds() % 60,
+                                    amount
                                 )
                             } else {
-                                card = format!("{} 停车{}秒", uid, d.whole_seconds());
+                                card = format!("{} {}秒 {}元", uid, d.whole_seconds(), amount);
                             }
                             tips = "祝你一路顺风！";
                         }

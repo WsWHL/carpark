@@ -1,7 +1,7 @@
 use heapless::Vec;
 
-static _ZH_CHARS: &str = "欢迎光临祝你一路顺风停车位已满年月日时分秒今日温湿度剩余个";
-static _ZH_GB2312_BYTES: [[u8; 2]; 29] = [
+static _ZH_CHARS: &str = "欢迎光临祝你一路顺风停车位已满年月日时分秒今日温湿度剩余个元";
+static _ZH_GB2312_BYTES: [[u8; 2]; 30] = [
     [0xBB, 0xB6],
     [0xD3, 0xAD],
     [0xB9, 0xE2],
@@ -31,6 +31,7 @@ static _ZH_GB2312_BYTES: [[u8; 2]; 29] = [
     [0xCA, 0xA3],
     [0xD3, 0xE0],
     [0xB8, 0xF6],
+    [0xD4, 0xAA],
 ];
 
 // 字符串转gb2312字符
