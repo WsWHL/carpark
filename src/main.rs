@@ -7,7 +7,6 @@ mod parking;
 
 use async_embedded::{task, unsync::Channel};
 use base::strings;
-use base::sys;
 use base::utils;
 use core::fmt::Write;
 use cortex_m::asm;
@@ -15,7 +14,6 @@ use cortex_m_rt::entry;
 use heapless::String;
 use panic_halt as _;
 use parking::park;
-use stm32f1xx_hal::prelude::*;
 use stm32f1xx_hal::time::ms;
 use time::Duration;
 
@@ -23,9 +21,6 @@ static mut BUF: String<64> = String::<64>::new();
 
 #[entry]
 fn main() -> ! {
-    let s = sys::Sys::new();
-    let mut delay = s.get_delay();
-
     // 初始化系统
     let m = park::Modules::new();
     let mut park = park::Parking::<2>::new(m.led);
@@ -44,12 +39,7 @@ fn main() -> ! {
             let uid = unsafe { C.recv().await };
             if uid > 0 {
                 // 启动闸机
-                sg.put_up();
-
-                delay.delay_ms(1000_u16);
-
-                // 关闭闸机
-                sg.put_down();
+                sg.on();
             }
 
             task::r#yield().await;

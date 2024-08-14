@@ -10,10 +10,8 @@ pub struct LEDDevice {
 impl LEDDevice {
     pub fn new(pa2: gpioa::PA2, pa3: gpioa::PA3, crl: &mut gpio::Cr<'A', false>) -> Self {
         let leds = [
-            pa2.into_push_pull_output_with_state(crl, gpio::PinState::High)
-                .erase(),
-            pa3.into_push_pull_output_with_state(crl, gpio::PinState::High)
-                .erase(),
+            pa2.into_push_pull_output(crl).erase(),
+            pa3.into_push_pull_output(crl).erase(),
         ];
 
         Self { leds }
@@ -22,14 +20,14 @@ impl LEDDevice {
     // 点亮LED灯
     pub fn on(&mut self, i: usize) {
         if i < self.leds.len() {
-            self.leds[i].set_low();
+            self.leds[i].set_high();
         }
     }
 
     // 关闭LED灯
     pub fn off(&mut self, i: usize) {
         if i < self.leds.len() {
-            self.leds[i].set_high();
+            self.leds[i].set_low();
         }
     }
 }

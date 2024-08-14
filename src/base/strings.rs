@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use core::{
     fmt::{self, Display, Write},
     str::FromStr,
