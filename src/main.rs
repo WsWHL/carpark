@@ -88,8 +88,6 @@ fn main() -> ! {
 
                 match park.scanning(id, ts) {
                     Ok(in_ts) => {
-                        unsafe { C.send(id).await }
-
                         if ts > in_ts {
                             let d = Duration::new(ts - in_ts, 0);
                             let amount = if d.whole_seconds() % 10 == 0 {
@@ -110,6 +108,11 @@ fn main() -> ! {
                             }
                             tips = "祝你一路顺风！";
                         }
+
+                        unsafe {
+                            write!(BUF, "{}", card.as_str()).unwrap();
+                            C.send(id).await
+                        }
                     }
                     Err(e) => {
                         if let park::ScanErrors::ParkingLimit = e {
@@ -119,7 +122,6 @@ fn main() -> ! {
                 }
 
                 unsafe {
-                    write!(BUF, "{}", card.as_str()).unwrap();
                     V.send(tips).await;
                 }
 
