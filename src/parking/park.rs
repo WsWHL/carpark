@@ -104,18 +104,16 @@ pub struct ParkingSpace {
 
 #[doc = "停车场管理 N: 初始化车位数量"]
 pub struct Parking<const N: usize> {
-    led: led::LEDDevice,
-
     spaces: [ParkingSpace; N],
     cm: IndexMap<i64, usize, BuildHasherDefault<FnvHasher>, 16>,
 }
 
 impl<const N: usize> Parking<N> {
-    pub fn new(led: led::LEDDevice) -> Self {
+    pub fn new() -> Self {
         let spaces: [ParkingSpace; N] = core::array::from_fn(|_| ParkingSpace { uid: 0, sts: 0 });
         let cm = FnvIndexMap::<i64, usize, 16>::new();
 
-        Self { led, spaces, cm }
+        Self { spaces, cm }
     }
 
     // 汽车入库扫描
@@ -150,9 +148,6 @@ impl<const N: usize> Parking<N> {
                 s.sts = ts;
                 self.cm.insert(uid, i).unwrap();
 
-                // 开启车位指示灯
-                self.led.on(i);
-
                 break;
             }
         }
@@ -167,9 +162,6 @@ impl<const N: usize> Parking<N> {
             sts = s.sts;
             s.uid = 0;
             s.sts = 0;
-
-            // 关闭车位指示灯
-            self.led.off(*i);
         }
         self.cm.remove(&uid);
 

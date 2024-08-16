@@ -23,7 +23,7 @@ static mut BUF: String<64> = String::<64>::new();
 fn main() -> ! {
     // 初始化系统
     let m = park::Modules::new();
-    let mut park = park::Parking::<2>::new(m.led);
+    let mut park = park::Parking::<100>::new();
 
     // 多任务通信Channel
     static mut C: Channel<i64> = Channel::new();
