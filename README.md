@@ -26,7 +26,7 @@ ST-LINK V2 protocol SWD
 
     config: `.gdbinit`
     ```shell
-    arm-none-eabi-gdb -se /Users/wanghailin/Works/stm32/carpark/target/thumbv7m-none-eabi/release/carpark
+    arm-none-eabi-gdb -se /Users/user-pc/Works/stm32/carpark/target/thumbv7m-none-eabi/release/carpark
     ```
 
 3. flash
